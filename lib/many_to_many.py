@@ -1,4 +1,4 @@
-import ipdb
+from functools import reduce
 
 class Author:
 
@@ -23,8 +23,15 @@ class Author:
         return [contract for contract in Contract.all if contract.author == self]
 
     def books(self):
-        pass
+        return [contract.book for contract in self.contracts()]
     
+    def sign_contract(self, book, date, royalties):
+        return Contract(self, book, date, royalties)
+    
+    def total_royalties(self):
+        return reduce(lambda x, y: x+y,[contract.royalties for contract in self.contracts()])
+
+
 class Book:
 
     all = []
@@ -43,6 +50,13 @@ class Book:
             self._title = title
         else:
             raise Exception('title must be of type string')
+        
+    def contracts(self):
+        return [contract for contract in Contract.all if contract.book == self]
+    
+    def authors(self):
+        return [contract.author for contract in Contract.all]
+
 
 class Contract:
 
@@ -94,11 +108,10 @@ class Contract:
         if not isinstance(royalties, int):
             raise Exception('royalties is not of type int')
         self._royalties = royalties
+    
+    @classmethod
+    def contracts_by_date(cls, date):
+        return [contract for contract in cls.all if contract.date == date]
 
 
 
-
-# author = Author("Name")
-# book = Book("Title")
-# contract = Contract(author, book, '01/01/2001', 50000)
-# print(author.contracts())
